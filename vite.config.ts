@@ -32,7 +32,7 @@ export default defineConfig({
 	],
 	server: {
 		host: true,
-		allowedHosts: ['susmanga.com', 's.susmanga.com']
+		allowedHosts: 'all'
 	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
