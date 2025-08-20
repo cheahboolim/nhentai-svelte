@@ -1,0 +1,144 @@
+-- =========================================
+-- DROP ALL TABLES (safe reset)
+-- =========================================
+DROP TABLE IF EXISTS manga_artists;
+DROP TABLE IF EXISTS manga_characters;
+DROP TABLE IF EXISTS manga_tags;
+DROP TABLE IF EXISTS manga_views;
+DROP TABLE IF EXISTS pages;
+DROP TABLE IF EXISTS chapters;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS artists;
+DROP TABLE IF EXISTS characters;
+DROP TABLE IF EXISTS manga;
+DROP TABLE IF EXISTS manga_search;
+
+-- =========================================
+-- SCHEMA REBUILD
+-- =========================================
+
+CREATE TABLE manga (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    total_views INTEGER DEFAULT 0
+);
+
+CREATE TABLE tags (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE artists (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE characters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE manga_tags (
+    manga_id INTEGER,
+    tag_id INTEGER,
+    PRIMARY KEY (manga_id, tag_id),
+    FOREIGN KEY (manga_id) REFERENCES manga(id),
+    FOREIGN KEY (tag_id) REFERENCES tags(id)
+);
+
+CREATE TABLE manga_artists (
+    manga_id INTEGER,
+    artist_id INTEGER,
+    PRIMARY KEY (manga_id, artist_id),
+    FOREIGN KEY (manga_id) REFERENCES manga(id),
+    FOREIGN KEY (artist_id) REFERENCES artists(id)
+);
+
+CREATE TABLE manga_characters (
+    manga_id INTEGER,
+    character_id INTEGER,
+    PRIMARY KEY (manga_id, character_id),
+    FOREIGN KEY (manga_id) REFERENCES manga(id),
+    FOREIGN KEY (character_id) REFERENCES characters(id)
+);
+
+CREATE TABLE chapters (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    manga_id INTEGER,
+    chapter_number INTEGER,
+    title TEXT,
+    FOREIGN KEY (manga_id) REFERENCES manga(id)
+);
+
+CREATE TABLE pages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    chapter_id INTEGER,
+    page_number INTEGER,
+    image_url TEXT,
+    FOREIGN KEY (chapter_id) REFERENCES chapters(id)
+);
+
+CREATE TABLE manga_views (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    manga_id INTEGER,
+    view_date DATE,
+    views INTEGER,
+    FOREIGN KEY (manga_id) REFERENCES manga(id)
+);
+
+-- Full-text search
+CREATE VIRTUAL TABLE manga_search USING fts5(
+  title, description, content='manga', content_rowid='id'
+);
+
+-- =========================================
+-- SEED DATA
+-- =========================================
+
+INSERT INTO tags (name) VALUES ('test hentai tag');
+INSERT INTO artists (name) VALUES ('test hentai artist');
+INSERT INTO characters (name) VALUES ('test hentai character');
+
+INSERT INTO manga (slug, title, description, total_views) VALUES
+('test-hentai-title-1', 'test hentai title 1', 'Sample description for test hentai title 1', 500),
+('test-hentai-title-2', 'test hentai title 2', 'Sample description for test hentai title 2', 250),
+('test-hentai-title-3', 'test hentai title 3', 'Sample description for test hentai title 3', 100),
+('test-hentai-title-4', 'test hentai title 4', 'Sample description for test hentai title 4', 0),
+('test-hentai-title-5', 'test hentai title 5', 'Sample description for test hentai title 5', 0),
+('test-hentai-title-6', 'test hentai title 6', 'Sample description for test hentai title 6', 0),
+('test-hentai-title-7', 'test hentai title 7', 'Sample description for test hentai title 7', 0),
+('test-hentai-title-8', 'test hentai title 8', 'Sample description for test hentai title 8', 0),
+('test-hentai-title-9', 'test hentai title 9', 'Sample description for test hentai title 9', 0),
+('test-hentai-title-10', 'test hentai title 10', 'Sample description for test hentai title 10', 0);
+
+-- Link the tag/artist/character to all manga
+INSERT INTO manga_tags (manga_id, tag_id)
+SELECT m.id, t.id FROM manga m, tags t;
+
+INSERT INTO manga_artists (manga_id, artist_id)
+SELECT m.id, a.id FROM manga m, artists a;
+
+INSERT INTO manga_characters (manga_id, character_id)
+SELECT m.id, c.id FROM manga m, characters c;
+
+-- Chapters + Pages
+INSERT INTO chapters (manga_id, chapter_number, title)
+SELECT id, 1, 'chapter 1' FROM manga;
+
+INSERT INTO pages (chapter_id, page_number, image_url)
+SELECT id, 1, 'https://i4.nhentai.net/galleries/3489552/1.webp' FROM chapters;
+
+INSERT INTO pages (chapter_id, page_number, image_url)
+SELECT id, 2, 'https://i4.nhentai.net/galleries/3489552/1.webp' FROM chapters;
+
+-- Daily view breakdown for top 3
+INSERT INTO manga_views (manga_id, view_date, views) VALUES
+((SELECT id FROM manga WHERE slug = 'test-hentai-title-1'), date('now'), 500),
+((SELECT id FROM manga WHERE slug = 'test-hentai-title-2'), date('now'), 250),
+((SELECT id FROM manga WHERE slug = 'test-hentai-title-3'), date('now'), 100);
+
+-- Rebuild search index
+INSERT INTO manga_search(rowid, title, description)
+SELECT id, title, description FROM manga;
