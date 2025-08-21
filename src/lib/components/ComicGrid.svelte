@@ -1,13 +1,16 @@
+<!-- src/lib/components/ComicGrid.svelte -->
 <script lang="ts">
-	interface Manga {
-		id: number;
+	interface Comic {
+		id: string;
 		title: string;
 		slug: string;
-		description?: string;
-		totalViews: number;
+		featureImage: string;
+		author: {
+			name: string;
+		};
 	}
 
-	export let comics: Manga[] = [];
+	export let comics: Comic[] = [];
 </script>
 
 <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -15,17 +18,20 @@
 		<div
 			class="bg-card group overflow-hidden rounded-lg shadow transition-shadow duration-200 hover:shadow-lg"
 		>
-			<a href={`/manga/${comic.slug}`}>
-				<div class="relative flex aspect-[3/4] items-center justify-center bg-gray-100">
-					<!-- Placeholder since Turso has no images -->
-					<span class="text-sm text-gray-500">No Image</span>
+			<a href={`/hentai/${comic.slug}`}>
+				<div class="relative aspect-[3/4] overflow-hidden">
+					<img
+						src={comic.featureImage || '/placeholder.svg'}
+						alt={comic.title}
+						class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+						loading="lazy"
+					/>
 				</div>
 			</a>
 			<div class="p-4">
-				<a href={`/manga/${comic.slug}`} class="hover:underline">
+				<a href={`/hentai/${comic.slug}`} class="hover:underline">
 					<h3 class="text-foreground truncate font-bold">{comic.title}</h3>
 				</a>
-				<p class="text-xs text-gray-500">{comic.totalViews} views</p>
 			</div>
 		</div>
 	{/each}

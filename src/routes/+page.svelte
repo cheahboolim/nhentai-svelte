@@ -1,13 +1,40 @@
+<!-- src/routes/+page.svelte -->
 <script lang="ts">
+	import AAdsBanner from '$lib/components/AAdsBanner.svelte';
+	import AAdsMiddleBanner from '$lib/components/AAdsMiddleBanner.svelte';
+	import NativeAds from '$lib/components/adsterra/NativeAds.svelte';
 	import RandomHome from '$lib/components/RandomHome.svelte';
+	import TrafficStarsAd from '$lib/components/TrafficStarsAd.svelte';
 	export let data;
 </script>
 
 <svelte:head>
 	<title>{data.meta.title}</title>
 	<meta name="description" content={data.meta.description} />
+	{#if data.meta.prev}
+		<link rel="prev" href={data.meta.prev} />
+	{/if}
+	{#if data.meta.next}
+		<link rel="next" href={data.meta.next} />
+	{/if}
+	<meta name="robots" content="index, follow" />
+
+	<meta property="og:title" content={data.meta.title} />
+	<meta property="og:description" content={data.meta.description} />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="https://cdn.nhentai.pics/main/nhentai-pics-home.jpg" />
+	<meta property="og:image:width" content="1200" />
+	<meta property="og:image:height" content="630" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:url" content="https://nhentai.pics" />
+	<meta property="og:site_name" content="nhentai.pics" />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://cdn.nhentai.pics/main/nhentai-pics-home.jpg" />
+	<meta name="twitter:title" content={data.meta.title} />
+	<meta name="twitter:description" content={data.meta.description} />
 </svelte:head>
 
-<main>
-	<RandomHome manga={data.manga} success={data.success} error={data.error} />
+<main class="mx-auto max-w-6xl px-4 py-8">
+	<RandomHome comics={data.comics} page={data.page} total={data.total} seed={data.seed} />
 </main>

@@ -1,3 +1,13 @@
-# allow crawling everything by default
+# src/static/robots.txt
 User-agent: *
-Disallow:
+Allow: /
+Allow: /hentai/
+Allow: /browse/
+Allow: /random
+Disallow: /search
+
+# Crawl-delay for responsible crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://nhentai.pics/sitemap.xml

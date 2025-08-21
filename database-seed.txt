@@ -1,5 +1,5 @@
 -- =========================================
--- DROP ALL TABLES (safe reset)
+-- (TURSO DATABASE) DROP ALL TABLES (safe reset)
 -- =========================================
 DROP TABLE IF EXISTS manga_artists;
 DROP TABLE IF EXISTS manga_characters;
